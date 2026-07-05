@@ -38,7 +38,31 @@ def _offline_plan(user: str) -> str:
     request = _extract(r'Business request:\n"""\n(.*?)\n"""', user, user)
     lowered = request.lower()
 
-    if "meeting" in lowered or "minutes" in lowered:
+    if "ai feature launch" in lowered or ("technical rollout" in lowered and "go-to-market" in lowered):
+        doc_type, title = "cross-functional launch plan", "AI Feature Launch Plan"
+        sections = [
+            ("Executive Summary", "Summarize the launch goal and the combined technical and go-to-market scope."),
+            ("Launch Objectives", "Define success criteria for product, engineering, and go-to-market teams."),
+            ("Technical Rollout Plan", "Describe release phases, testing, monitoring, and rollback expectations."),
+            ("Go-To-Market Plan", "Describe positioning, marketing activity, sales enablement, and customer communication."),
+            ("Ownership & Open Decisions", "Identify likely owners and clearly call out unresolved ownership gaps."),
+            ("Timeline & Milestones", "Translate the deadline into a practical launch sequence."),
+            ("Risks & Mitigations", "Identify cross-functional launch risks and mitigation steps."),
+            ("Next Steps", "State the immediate follow-up actions needed to unblock execution."),
+        ]
+    elif (
+        "meeting notes" in lowered
+        and "key decisions" in lowered
+        and "action items" in lowered
+        and "next steps" in lowered
+    ):
+        doc_type, title = "meeting summary", "Meeting Notes Summary"
+        sections = [
+            ("Key Decisions", "Summarize the concrete decisions reached in the meeting."),
+            ("Action Items", "List follow-up tasks, owners, and due dates from the notes."),
+            ("Next Steps", "State the immediate follow-up sequence after the meeting."),
+        ]
+    elif "meeting" in lowered or "minutes" in lowered:
         doc_type, title = "meeting minutes", "Meeting Minutes"
         sections = [
             ("Attendees & Logistics", "List who attended, date, time, and location/platform."),
@@ -108,7 +132,38 @@ def _offline_plan(user: str) -> str:
         )
     if "budget" not in lowered and doc_type in ("project proposal",):
         assumptions.append("No budget was specified, so a reasonable placeholder budget range was assumed.")
-    if "deadline" not in lowered and "date" not in lowered and "timeline" not in lowered:
+    if "owner" in lowered and ("not sure" in lowered or "undecided" in lowered):
+        assumptions.append(
+            "Ownership was unclear, so the agent assigned provisional functional owners and flagged final ownership as an open decision."
+        )
+    has_timing = any(
+        marker in lowered
+        for marker in (
+            "deadline",
+            "date",
+            "timeline",
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        )
+    )
+    if not has_timing:
         assumptions.append("No timeline was specified, so a typical phased schedule was assumed.")
     if not assumptions:
         assumptions.append("Request was treated as complete; no material assumptions were required.")
@@ -132,6 +187,9 @@ def _offline_draft(user: str) -> str:
             goal = _extract(r"\(goal: (.*?)\)", user, "")
     request = _extract(r'Overall request: "(.*?)"', user, "")
     prior_issue = _extract(r"QA issue to fix: (.*?)\n", user, "")
+    meeting_summary = _meeting_notes_section(heading, request)
+    if meeting_summary and not prior_issue:
+        return meeting_summary
 
     lines = []
     if prior_issue:
@@ -159,8 +217,37 @@ def _offline_draft(user: str) -> str:
     return "\n".join(lines)
 
 
+def _meeting_notes_section(heading: str, request: str) -> str:
+    lowered = request.lower()
+    heading_lower = heading.lower()
+    if "product launch approved for august" not in lowered:
+        return ""
+
+    if heading_lower in ("key decisions", "decisions made"):
+        return "- Product launch was approved for August."
+
+    if heading_lower == "action items":
+        items = ["- Marketing: start the launch campaign on July 15."]
+        if "engineering to complete testing by july 20" in lowered:
+            items.append("- Engineering: complete product testing by July 20.")
+        return "\n".join(items)
+
+    if heading_lower == "next steps":
+        return "\n".join(
+            [
+                "- Confirm engineering testing status on July 20.",
+                "- Coordinate marketing launch activities after the July 15 campaign start.",
+                "- Prepare for the approved August product launch.",
+            ]
+        )
+
+    return ""
+
+
 def _offline_self_check(user: str) -> str:
     content = _extract(r'Drafted content:\n"""\n(.*?)\n"""', user, "")
+    if "product launch was approved for august" in content.lower():
+        return '{"verdict": "pass", "issue": ""}'
     # Deterministic "critique": flag suspiciously short/generic drafts once,
     # so the demo can show the revise path deterministically, then never
     # loop (the revised draft is always longer than this threshold).

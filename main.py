@@ -22,6 +22,7 @@ import uuid
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from agent import AutonomousAgent, RequestValidationError
@@ -31,7 +32,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger("agent.api")
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "generated_documents")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(STATIC_DIR, exist_ok=True)
 
 app = FastAPI(
     title="Autonomous Document Agent",
@@ -42,6 +45,8 @@ app = FastAPI(
 
 _llm = LLMClient()
 _agent = AutonomousAgent(llm=_llm)
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class AgentRequest(BaseModel):
@@ -67,6 +72,11 @@ class AgentResponse(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok", "llm_backend": _llm.backend}
+
+
+@app.get("/")
+def index():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 
 @app.post("/agent", response_model=AgentResponse)
@@ -99,7 +109,7 @@ def run_agent(payload: AgentRequest):
             f"after the agent's self-check pass."
         ),
         document_type=run.document_type,
-        title_used=_title_from_path(output_path, run),
+        title_used=run.title,
         assumptions=run.assumptions,
         sections=sections_out,
         download_url=f"/agent/{request_id}/download",
@@ -117,8 +127,3 @@ def download(request_id: str):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         filename=os.path.basename(path),
     )
-
-
-def _title_from_path(path: str, run) -> str:
-    # Small helper kept out of the response model construction for readability.
-    return run.document_type.title()

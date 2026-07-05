@@ -30,6 +30,13 @@ from typing import Optional
 
 logger = logging.getLogger("agent.llm")
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - dependency is optional at runtime
+    load_dotenv = None
+else:
+    load_dotenv()
+
 
 class LLMBackendError(Exception):
     """Raised when a backend call fails after retries are exhausted."""

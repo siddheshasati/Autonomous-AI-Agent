@@ -59,6 +59,7 @@ class SectionResult:
 class AgentRun:
     request: str
     document_type: str
+    title: str
     plan: list
     assumptions: list
     sections: list = field(default_factory=list)  # list[SectionResult]
@@ -220,6 +221,7 @@ class AutonomousAgent:
         run = AgentRun(
             request=request,
             document_type=plan["document_type"],
+            title=plan["title"],
             plan=plan["sections"],
             assumptions=plan.get("assumptions", []),
         )
