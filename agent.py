@@ -1,29 +1,3 @@
-"""
-agent.py
---------
-The autonomous agent itself.
-
-Pipeline (each stage is a separate, independently-testable method):
-
-    1. validate_request   -> reject empty/unsafe/out-of-scope input early
-    2. plan                -> LLM decomposes the request into a document type,
-                               an ordered section list, and explicit
-                               assumptions it is making about missing info
-    3. execute_plan        -> LLM drafts content for each planned section
-    4. self_check          -> **the mandatory engineering improvement**:
-                               a second LLM pass critiques each drafted
-                               section against the plan/requirements and
-                               triggers exactly one revision if it finds a
-                               real problem (see docstring on self_check)
-    5. build_docx          -> python-docx renders the final, formatted
-                               Word document from the structured plan +
-                               (possibly revised) section content
-
-Everything the agent decided along the way (plan, assumptions, per-section
-self-check verdicts) is returned to the caller in the API response, not just
-the file - that's what makes the reasoning visible/auditable instead of a
-black box.
-"""
 from __future__ import annotations
 
 import logging

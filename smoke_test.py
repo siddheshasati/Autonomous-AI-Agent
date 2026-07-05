@@ -1,8 +1,3 @@
-"""Smoke tests for the assignment requirements.
-
-Run after installing requirements:
-    python smoke_test.py
-"""
 from __future__ import annotations
 
 import os

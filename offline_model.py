@@ -1,18 +1,3 @@
-"""
-offline_model.py
------------------
-A deterministic, template-driven stand-in for an LLM. This is NOT meant to
-demonstrate NLU - it exists purely so the FastAPI service, planner, executor,
-self-check loop, and docx renderer are all exercisable end-to-end with zero
-network access and zero API keys (useful for graders, CI, or offline demos).
-
-Set GROQ_API_KEY (recommended, free tier) or OLLAMA_HOST to bypass this
-entirely and use a real model - llm_client.py picks it up automatically.
-
-The dispatch below keys off distinctive phrases that agent.py's own prompts
-always contain, so it stays in lockstep with agent.py without needing a
-shared schema file.
-"""
 from __future__ import annotations
 
 import json

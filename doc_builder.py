@@ -1,11 +1,3 @@
-"""
-doc_builder.py
---------------
-Turns the agent's plan + drafted (and possibly self-corrected) sections into
-a polished .docx using python-docx. Kept separate from agent.py so the
-"how do we render a document" concern never leaks into "how do we plan and
-reason" - either can change independently.
-"""
 from __future__ import annotations
 
 import datetime as dt

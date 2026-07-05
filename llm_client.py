@@ -1,25 +1,3 @@
-"""
-llm_client.py
---------------
-Thin abstraction over "whatever LLM backend is available".
-
-Why this exists:
-    The challenge asks for a *free or locally runnable* model (Groq / Gemini
-    free tier / Ollama / etc). Graders and CI environments won't always have
-    a live API key or a running Ollama daemon, so the agent must still start,
-    plan, execute and produce a valid .docx end-to-end without one.
-
-Resolution order (first available wins):
-    1. Groq        -> if GROQ_API_KEY is set              (fast, free tier, llama-3.3-70b-versatile)
-    2. Ollama       -> if OLLAMA_HOST is set (or localhost:11434 answers)
-    3. Offline stub -> deterministic, template-driven "LLM" used for demos/tests
-
-The rest of the codebase only ever talks to `LLMClient.complete(system, user)`
-and `LLMClient.complete_json(system, user)` - it never knows or cares which
-backend answered. That's the key engineering decision here: swapping models
-or adding a new provider means writing one new private method, not touching
-agent.py or main.py at all.
-"""
 from __future__ import annotations
 
 import json

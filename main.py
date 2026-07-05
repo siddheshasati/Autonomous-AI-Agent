@@ -1,19 +1,3 @@
-"""
-main.py
--------
-FastAPI surface for the autonomous document agent.
-
-    POST /agent   {"request": "..."}   -> plan, execute, self-check, render docx
-    GET  /health  -> liveness + which LLM backend is active
-
-Run:
-    uvicorn main:app --reload --port 8000
-
-Try it:
-    curl -X POST http://localhost:8000/agent \
-         -H "Content-Type: application/json" \
-         -d '{"request": "Write meeting minutes for our weekly engineering sync"}'
-"""
 from __future__ import annotations
 
 import logging
