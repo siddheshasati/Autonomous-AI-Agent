@@ -24,23 +24,7 @@ Supported document styles include proposals, meeting summaries, launch plans,
 SOPs, product specs, technical designs, and business reports. Mock details are
 used where the request does not provide enough real data.
 
-## Quick Start
 
-```powershell
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload --port 8000
-```
-
-Open the simple UI:
-
-```text
-http://127.0.0.1:8000/
-```
-
-Check the backend:
-
-```text
-http://127.0.0.1:8000/health
 ```
 
 ## API Example
