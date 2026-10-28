@@ -56,40 +56,6 @@ Download the generated Word file from:
 http://127.0.0.1:8000/agent/<request_id>/download
 ```
 
-## API Keys And Model Configuration
-
-Keep real API keys in a local `.env` file in the project root. Do not commit
-`.env`; it is ignored by `.gitignore`.
-
-Start by copying:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-For Groq:
-
-```text
-GROQ_API_KEY=gsk_your_real_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
-```
-
-For Ollama:
-
-```text
-OLLAMA_HOST=http://localhost:11434
-OLLAMA_MODEL=llama3.1
-```
-
-Model priority:
-
-1. Groq if `GROQ_API_KEY` is set.
-2. Ollama if `OLLAMA_HOST` is set.
-3. Offline deterministic fallback if neither is set.
-
-The offline fallback means the full pipeline still runs without paid credits
-or internet access.
-
 ## Test The Assignment Cases
 
 ```powershell
